@@ -12,6 +12,14 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { Items } from '../mocks/providers/items';
 import { Settings, User, Api } from '../providers';
 import { MyApp } from './app.component';
+// These are all imports required for Pro Client with Monitoring & Deploy,
+// feel free to merge into existing imports above.
+import { Pro } from '@ionic/pro';
+import { Injectable, Injector } from '@angular/core';
+
+Pro.init('YOUR_APP_ID', {
+  appVersion: 'APP_VERSION'
+})
 
 // The translate loader needs to know where to load i18n files
 // in Ionic's static asset pipeline.
@@ -33,6 +41,27 @@ export function provideSettings(storage: Storage) {
     option4: 'Hello'
   });
 }
+
+@Injectable()
+export class MyErrorHandler implements ErrorHandler {
+  ionicErrorHandler: IonicErrorHandler;
+
+  constructor(injector: Injector) {
+    try {
+      this.ionicErrorHandler = injector.get(IonicErrorHandler);
+    } catch(e) {
+      // Unable to get the IonicErrorHandler provider, ensure
+      // IonicErrorHandler has been added to the providers list below
+    }
+  }
+handleError(err: any): void {
+  Pro.monitoring.handleNewError(err);
+  // Remove this if you want to disable Ionic's auto exception handling
+  // in development mode.
+  this.ionicErrorHandler && this.ionicErrorHandler.handleError(err);
+}
+}
+
 
 @NgModule({
   declarations: [
@@ -62,6 +91,7 @@ export function provideSettings(storage: Storage) {
     Camera,
     SplashScreen,
     StatusBar,
+    IonicErrorHandler,
     { provide: Settings, useFactory: provideSettings, deps: [Storage] },
     // Keep this to enable Ionic's runtime error handling during development
     { provide: ErrorHandler, useClass: IonicErrorHandler }

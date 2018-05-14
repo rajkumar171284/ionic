@@ -1,0 +1,8 @@
+{
+  "name": "myfirstionic",
+  "app_id": "f0d85fc2",
+  "type": "ionic-angular",
+  "integrations": {
+    "cordova": {}
+  }
+}
